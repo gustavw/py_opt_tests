@@ -11,7 +11,7 @@ typedef struct Data
 
 /* Destructor function for points */
 static void del_Data(PyObject *obj) {
-    printf("free PyCapsule\n");
+    //printf("free PyCapsule\n"); /* Fun code to uncomment to show garbage collection in python */
     free(PyCapsule_GetPointer(obj,"Data"));
 }
 
