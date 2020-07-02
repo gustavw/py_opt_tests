@@ -84,6 +84,25 @@ ext = Extension('cuda_add',
             include_dirs = [numpy_include, CUDA['include'], 'src']
         )
 
+ext_rmk = Extension('cuda_add_rmk',
+        sources = ['src/cuda_add_rmk.cu'],
+        library_dirs = [CUDA['lib64']],
+        libraries = ['cudart'],
+        language = 'c++',
+        runtime_library_dirs = [CUDA['lib64']],
+        # This syntax is specific to this build system
+        # we're only going to use certain compiler args with nvcc
+        # and not with gcc the implementation of this trick is in
+        # customize_compiler()
+        extra_compile_args= {
+            'gcc': [],
+            'nvcc': [
+                '-arch=sm_30', '--ptxas-options=-v', '-c',
+                '--compiler-options', "'-fPIC'"
+                ]
+            },
+            include_dirs = [numpy_include, CUDA['include'], 'src']
+        )
 
 setup(
     name = 'cuda_add',
@@ -99,6 +118,19 @@ setup(
     zip_safe = False
 )
 
+setup(
+    name = 'cuda_add_rmk',
+    author = 'Gustav Wiberg',
+    version = '0.1',
+    description="Python interface for Cuda C/C++ library function",
+    ext_modules = [ext_rmk],
+
+    # Inject our custom trigger
+    cmdclass = {'build_ext': custom_build_ext},
+
+    # Since the package has c code, the egg cannot be zipped
+    zip_safe = False
+)
 setup(
     name="c_add",
     version="0.1",

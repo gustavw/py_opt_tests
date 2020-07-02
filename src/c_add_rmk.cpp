@@ -11,7 +11,6 @@ typedef struct Data
 
 /* Destructor function for points */
 static void del_Data(PyObject *obj) {
-    //printf("free PyCapsule\n"); /* Fun code to uncomment to show garbage collection in python */
     free(PyCapsule_GetPointer(obj,"Data"));
 }
 
@@ -62,8 +61,9 @@ static PyObject *py_method_set(PyObject *self, PyObject *args) {
 static PyObject *py_method_add(PyObject *self, PyObject *args) {
     Data *d;
     PyObject *py_d;
+    int r;
     int n;
-    if (!PyArg_ParseTuple(args, "iO", &n, &py_d)) {
+    if (!PyArg_ParseTuple(args, "iiO", &r, &n, &py_d)) {
         return NULL;
     }
 
@@ -71,16 +71,18 @@ static PyObject *py_method_add(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    float result[n];
+    //float result[n];
 
-    for (int i = 0; i < n; i++) {
-        result[i] =  d[i].x + d[i].y;
+    for (int i = 0; i < r; i += 1) {
+        for (int j = 0; j < n; j += 1) {
+            d[j].y =  d[j].x + d[j].y;
+        }
     }
 
     // Check for errors (all values should be 3.0f)
     float maxError = 0.0f;
     for (int i = 0; i < n; i++)
-        maxError = fmax(maxError, fabs(result[i]-3.0f));
+        maxError = fmax(maxError, fabs(d[i].y-3.0f));
 
     /* For Demo of Garbage collection */
     //Py_DECREF(py_d);
